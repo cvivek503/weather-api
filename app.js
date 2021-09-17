@@ -10,6 +10,7 @@ app.get("/",function (req,res){
 res.sendFile(__dirname+"/index.html");
 
 })
+
 app.post("/",function (req,res){
 const query=req.body.cityName;
 
@@ -20,6 +21,8 @@ const url="https://api.openweathermap.org/data/2.5/weather?q="+query+"&appid="+a
 https.get(url,function (response){
 
 console.log(response.statusCode);
+if(response.statusCode!=404)
+{
 response.on("data",function (data){
 const weatherdata=JSON.parse(data);
 const temperature=weatherdata.main.temp;
@@ -31,21 +34,33 @@ res.write("<p>The weather condition currently is :"+weatherDescription+".</p>");
 res.write("<h1>The temperature in "+query+" is currently "+temperature+" degree celcius.</h1>");
 res.write("<img src="+imgurl+">");
 res.send();
-
-
-
 })
-})
-})
+}
+else
+{
+
+
+res.sendFile(__dirname+"/404.jpg");
+
+
+
+}
+}
+)
+}
+)
 
 
 
 
-
-app.listen(port,function (){
+let server=app.listen(port,function (){
 
 
 console.log("hehe");
 
 
 })
+server.on('clientError', (err, socket) => {
+  console.error(err);
+  socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+});
